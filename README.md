@@ -100,19 +100,24 @@ Deploy `aws/sotaspot/lambda_function.py` (Python 3.x, `requests` layer required)
 
 Set the following environment variables:
 
-| Variable | Description |
-|---|---|
-| `SOTA_USERNAME` | Your SOTA SSO username |
-| `SOTA_PASSWORD` | Your SOTA SSO password |
-| `SOTA_CALLSIGN` | Your callsign (default: `HB9TVK`) |
+| Variable | Required | Description |
+|---|---|---|
+| `SOTA_USERNAME` | yes | Your SOTA SSO username |
+| `SOTA_PASSWORD` | yes | Your SOTA SSO password |
+| `S3_BUCKET` | yes | Name of your S3 bucket used to persist the refresh token |
+| `SOTA_CALLSIGN` | no | Your callsign (default: `HB9TVK`) |
 
-The function uses a three-level auth strategy to minimise full logins:
-1. **Module-level cache** — reuses the access token across warm Lambda invocations.
-2. **S3 refresh token** — stored in bucket `hb9tvk-sotaspot`, key `refresh.txt`; valid ~30 days.
+**S3 bucket:** Create a private S3 bucket in the same AWS region as the Lambda function and set
+its name in the `S3_BUCKET` environment variable. The Lambda execution role must have
+`s3:GetObject` and `s3:PutObject` on `arn:aws:s3:::YOUR-BUCKET-NAME/refresh.txt`.
+
+The function uses a three-level auth strategy to minimise full SSO logins:
+1. **Module-level cache** — reuses the access token across warm Lambda invocations (~5 min TTL).
+2. **S3 refresh token** — stored as `refresh.txt` in the configured bucket; valid ~30 days.
 3. **Full SSO login** — browser-simulated PKCE flow, runs only when the refresh token has expired.
 
-Create the S3 bucket and grant the Lambda execution role `s3:GetObject` / `s3:PutObject` on it.
-The refresh token is seeded automatically on the first successful login.
+The refresh token is written to S3 automatically on the first successful login and refreshed on
+every subsequent invocation, so no manual seeding is required.
 
 ## Summit Database
 

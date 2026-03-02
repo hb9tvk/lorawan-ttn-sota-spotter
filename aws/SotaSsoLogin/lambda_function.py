@@ -81,7 +81,7 @@ logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
     s3=boto3.resource('s3')
-    obj=s3.Object('hb9tvk-sotaspot', 'refresh.txt')
+    obj=s3.Object(os.environ['S3_BUCKET'], 'refresh.txt')
     refreshToken=obj.get()['Body'].read().decode('utf-8').strip()
     logger.info(refreshToken)
     t=getNewAccessToken(refreshToken)

@@ -13,7 +13,7 @@ from urllib.parse import urlparse, parse_qs
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-S3_BUCKET      = 'hb9tvk-sotaspot'
+S3_BUCKET      = os.environ['S3_BUCKET']
 S3_REFRESH_KEY = 'refresh.txt'
 SPOT_URL       = 'https://api-db2.sota.org.uk/api/spots'
 SSO_BASE       = 'https://sso.sota.org.uk/auth/realms/SOTA/protocol/openid-connect'
